@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <form onsubmit = "Savetocloud(event)">
+    <label>Choose Expenses</label><br>
+    <input id = 'choexpen'  type = "text"  name="choexpen" required/><br>
+    <label>choose a description</label><br>
+    <select name ='chosdesc' id="chosdesc">
+    <option  value = "petrol">petrol</option>
+    <option value = "diesel">diesel</option>
+    <option value = "gas">gas</option>
+    <option value = "izol">izol</option>
+    </select><br>
+    <label>choose a category</label><br>
+    <input type="text" id="choscate" name="choscate"  required/><br>
+    <button>ADD EXPENSES</button>
+</form>
+
+<ul id="listofUsers"></ul>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+<script>
+   
+   function Savetocloud(event)
+   {
+    event.preventDefault() ;
+    const chosexpenses = event.target.choexpen.value;
+    const chosdescription = event.target.chosdesc.value;
+    const choscategory = event.target.choscate.value;
+
+
+    const obj=
+    {
+
+
+        chosexpenses,
+        chosdescription ,
+        choscategory 
+    }
+     axios.post("https://crudcrud.com/api/719a53e2fb9d40ad82f357784d82b007/expensesoffive" , obj)
+     .then((response) =>{
+        Showuseronscreeon(response.data) 
+        console.log(response);
+     })
+     .catch((error) =>{
+        document.body.innerHTML = document.body.innerHTML + "<h4>SOmething Went Wrong</h4>" ;
+        console.log(error)
+     })
+    }
+     function Showuseronscreeon(user)
+     {
+        const parentNode = document.getElementById('listOfUsers') ;
+         const ChildNode = `<li  id= ${user._id}> ${user.chosexpenses} - ${user.chosdescription}  -  ${user.choscategory}     
+                    <button onclick= deleteUser('${user._id}')> Delete </button> <button onclick =EditUser('${user.chosexpenses}','${user.choscategory}','${user.chosdescription}','${user._id}')>Edit </button></li>`
+                parentNode.innerHTML = parentNode.innerHTML + ChildNode ;
+            
+    }
+    
+    window.addEventListener("DOMContentLoaded" ,() =>{
+                axios.get("https://crudcrud.com/api/719a53e2fb9d40ad82f357784d82b007/expensesoffive")
+                .then((respose) => {
+                    console.log(respose)
+
+                    for(var i=0; i<respose.data.length ; i++)
+                    {
+                        Savetocloud(respose.data[i]); 
+                    }
+                })
+                .catch((error)=>{
+                    console.log(error);
+                })
+
+            })
+            function deleteUser(userId)
+               {
+                 axios.delete(`https://crudcrud.com/api/719a53e2fb9d40ad82f357784d82b007/expensesoffive${userId}`)
+                 .then((response) =>{
+                    removeuserfromScreen(userId)
+                 })
+                 .catch((err) =>{
+                    console.log(err)
+                 })
+
+                //localStorage.removeItem(emailId) ;
+                //removeuserfromScreen(emailId) ;
+               }
+
+               function removeuserfromScreen(userId)
+               {
+                const parentNode = document.getElementById('listOfUsers') ;
+                const ChildNodetoremove = document.getElementById(userId) ;
+                parentNode.removeChild(ChildNodetoremove);
+               }
+                function EditUser(choosexpen,chosedescription,chosecategory,userId)
+                {
+               
+                
+                    document.getElementById('choexpen').value = choosexpen;
+                    document.getElementById('chosdesc').value = chosedescription ;
+                    document.getElementById('choscate').value = chosecategory;
+
+                  deleteUser(userId) ;
+
+                }
+
+     
+   
+
+
+</script>
+</body>
+</html>
